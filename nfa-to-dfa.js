@@ -14,11 +14,7 @@ const transformSpontaniousTransitions = (NFA) => {
             .filter(({ to }) => to === spontaniousTransition.from )
             .map((newTransition) => ({ ...newTransition, to: spontaniousTransition.to }))
 
-        NFA.δ = [
-            ...NFA.δ,
-            ...greenRuleTransitions,
-            ...blueRuleTransitions
-        ]
+        NFA.δ.push(...greenRuleTransitions, ...blueRuleTransitions)
         spontaniousTransition = getNextSpontinousTransition(NFA.δ)
     } while (spontaniousTransition !== null)
 }
