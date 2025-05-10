@@ -1,28 +1,26 @@
+const getNextSpontinousTransition = (δ) => {
+    const index = δ.findIndex(({ Σ }) => Σ === null)
+    return index === -1 ? null : δ.splice(index, 1)[0]
+}
+
 const transformSpontaniousTransitions = (NFA) => {
-    const spontaniousTransitions = []
-    const filteredTransitions = []
+    let spontaniousTransition = getNextSpontinousTransition(NFA.δ)
+    do {
+        const greenRuleTransitions = NFA.δ
+            .filter(({ from }) => from === spontaniousTransition.to )
+            .map((newTransition) => ({ ...newTransition, from: spontaniousTransition.from }))
 
-    for (const transition of NFA.δ) {
-        if (transition.Σ === null) {
-            spontaniousTransitions.push(transition)
-            continue
-        }
-        filteredTransitions.push(transition)
-    }
+        const blueRuleTransitions = NFA.δ
+            .filter(({ to }) => to === spontaniousTransition.from )
+            .map((newTransition) => ({ ...newTransition, to: spontaniousTransition.to }))
 
-    const transformedSpontaniousTransitions = spontaniousTransitions.map(spontaniousTransitions => {
-        const greenRuleTransitions = filteredTransitions
-            .filter(({ from }) => from === spontaniousTransitions.to )
-            .map((newTransition) => ({ ...newTransition, from: spontaniousTransitions.from }))
- 
-        const blueRuleTransitions = filteredTransitions
-            .filter(({ to }) => to === spontaniousTransitions.from )
-            .map((newTransition) => ({ ...newTransition, to: spontaniousTransitions.to }))
-
-        return [...greenRuleTransitions, ...blueRuleTransitions]
-    }).flat()
-
-    NFA.δ = [...filteredTransitions, ...transformedSpontaniousTransitions]
+        NFA.δ = [
+            ...NFA.δ,
+            ...greenRuleTransitions,
+            ...blueRuleTransitions
+        ]
+        spontaniousTransition = getNextSpontinousTransition(NFA.δ)
+    } while (spontaniousTransition !== null)
 }
 
 const mergeDownTransitions = (signals, transitions, statesToExpand, expandedStates) => {
@@ -149,15 +147,11 @@ const NFA = {
         { from: '0', Σ: 'a', to: '0' },
         { from: '0', Σ: 'a', to: '1' },
         { from: '0', Σ: null, to: '3' },
-
         { from: '1', Σ: 'b', to: '2' },
-
         { from: '2', Σ: 'b', to: '4' },
-
         { from: '4', Σ: 'b', to: '2' },
-        
-        { from: '3', Σ: 'c', to: '3' },        
-        { from: '3', Σ: 'b', to: '1' },        
+        { from: '3', Σ: 'c', to: '3' },
+        { from: '3', Σ: 'b', to: '1' },
     ],
     q0: '0',
     F: ['2'],
