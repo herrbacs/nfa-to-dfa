@@ -99,7 +99,7 @@ const convertDfaToGraphviz = ({ Q, δ, q0, F }) => {
             return `q${q} [label = <<i>q</i><sub>${q}</sub>>]`
         }
         const nums = q.split(' ')
-        return `q${nums.join('_')} [label = <${nums.map(n => `<i>q</i><sub>${n}</sub>`).join('')}>]`
+        return `q${nums.join('_')} [${F.includes(q) ? 'shape = doublecircle' : ''} label = <${nums.map(n => `<i>q</i><sub>${n}</sub>`).join('')}>]`
     }).join('\n    ')
 
     const merged = δ.reduce((acc, { from, Σ, to }) => {
